@@ -135,35 +135,35 @@ ______________________________________________________________________
 
 ## Implementation Status
 
-| Component             | Status      | Location                             |
-| --------------------- | ----------- | ------------------------------------ |
-| Rules (7 files)       | ✅ Complete | `src/rules/`                         |
-| User memory template  | ✅ Complete | `src/user/CLAUDE.md`                 |
-| Skills directory      | ✅ Complete | `src/skills/`                        |
-| notify-done hook      | ✅ Complete | `src/hooks/notify-done/`             |
-| Status line           | ✅ Complete | `src/scripts/statusline-command.sh`  |
-| Bootstrap script      | ✅ Complete | `src/scripts/bootstrap.sh`           |
-| Handoff instruction   | ✅ Complete | `scripts/handoff-instruction.md`     |
-| Getting started guide | ✅ Complete | `docs/getting-started.md`            |
-| Context guide         | ✅ Complete | `docs/context-guide.md`              |
-| Design document       | ✅ Complete | `docs/design.md`                     |
+| Component             | Status      | Location                            |
+| --------------------- | ----------- | ----------------------------------- |
+| Rules (7 files)       | ✅ Complete | `src/rules/`                        |
+| User memory template  | ✅ Complete | `src/user/CLAUDE.md`                |
+| Skills directory      | ✅ Complete | `src/skills/`                       |
+| notify-done hook      | ✅ Complete | `src/hooks/notify-done/`            |
+| Status line           | ✅ Complete | `src/scripts/statusline-command.sh` |
+| Bootstrap script      | ✅ Complete | `src/scripts/bootstrap.sh`          |
+| Handoff instruction   | ✅ Complete | `scripts/handoff-instruction.md`    |
+| Getting started guide | ✅ Complete | `docs/getting-started.md`           |
+| Context guide         | ✅ Complete | `docs/context-guide.md`             |
+| Design document       | ✅ Complete | `docs/design.md`                    |
 
 ______________________________________________________________________
 
 ## Decision Log
 
-| Decision            | Options Considered                                 | Choice               | Rationale                                                           |
-| ------------------- | -------------------------------------------------- | -------------------- | ------------------------------------------------------------------- |
-| Distribution method | npm package / git submodule / symlinked repo       | Symlinked repo       | Simplest; git pull updates everything; no build step                |
-| Knowledge storage   | MCP server / Skills / File-based                   | Skills               | Native to CC, hot-reloaded, simpler than MCP                        |
-| Rule philosophy     | Comprehensive / Lean (only what CC gets wrong)     | Lean                 | Reduces context waste; CC already follows most best practices       |
-| Documentation model | Single audience / Dual audience                    | Dual                 | Humans need docs/; CC needs CLAUDE.md + rules; both are first-class |
-| Notification system | Telegram / macOS native / Web push                 | macOS native         | Zero setup, no API keys, works immediately                          |
-| Project handoff     | Verbal / Template / Structured spec                | Structured spec      | Consistent format; CC can parse it reliably                         |
-| Context management  | Everything in rules / Three-tier                   | Three-tier           | Balances always-available vs context-window cost                    |
-| Learned knowledge   | Skills / Rules / User memory                       | User memory          | Personal patterns don't belong in distributed rules or skills       |
-| Ownership model     | Shared upstream / Fork-and-own                     | Fork-and-own         | Users customize freely; no merge conflicts with upstream            |
-| Skill format        | Flat .md files / Directory + SKILL.md              | Directory + SKILL.md | CC discovers skills via frontmatter in SKILL.md, not flat files     |
+| Decision            | Options Considered                             | Choice               | Rationale                                                           |
+| ------------------- | ---------------------------------------------- | -------------------- | ------------------------------------------------------------------- |
+| Distribution method | npm package / git submodule / symlinked repo   | Symlinked repo       | Simplest; git pull updates everything; no build step                |
+| Knowledge storage   | MCP server / Skills / File-based               | Skills               | Native to CC, hot-reloaded, simpler than MCP                        |
+| Rule philosophy     | Comprehensive / Lean (only what CC gets wrong) | Lean                 | Reduces context waste; CC already follows most best practices       |
+| Documentation model | Single audience / Dual audience                | Dual                 | Humans need docs/; CC needs CLAUDE.md + rules; both are first-class |
+| Notification system | Telegram / macOS native / Web push             | macOS native         | Zero setup, no API keys, works immediately                          |
+| Project handoff     | Verbal / Template / Structured spec            | Structured spec      | Consistent format; CC can parse it reliably                         |
+| Context management  | Everything in rules / Three-tier               | Three-tier           | Balances always-available vs context-window cost                    |
+| Learned knowledge   | Skills / Rules / User memory                   | User memory          | Personal patterns don't belong in distributed rules or skills       |
+| Ownership model     | Shared upstream / Fork-and-own                 | Fork-and-own         | Users customize freely; no merge conflicts with upstream            |
+| Skill format        | Flat .md files / Directory + SKILL.md          | Directory + SKILL.md | CC discovers skills via frontmatter in SKILL.md, not flat files     |
 
 ______________________________________________________________________
 
