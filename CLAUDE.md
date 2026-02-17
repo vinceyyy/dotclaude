@@ -85,7 +85,7 @@ Explain what each setting does:
 ```bash
 ls -la ~/.claude/CLAUDE.md  # Should be a symlink to src/user/CLAUDE.md
 ls ~/.claude/rules/         # Should list rule .md files
-ls ~/.claude/skills/        # Should show skill directories (if any added)
+ls ~/.claude/skills/        # Should show blend-brand/ directory
 ```
 
 Tell the user they're ready. They can now `cd` to any project and run `claude` — the rules and skills will be available
