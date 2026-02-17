@@ -123,6 +123,7 @@ dotclaude/
 
 ## Working on This Repo
 
+- **Always use PRs** — never commit directly to main (CI only runs on PRs)
 - Use feature branches (`feat/`, `fix/`, `refactor/`)
 - Test changes by verifying CC behavior in another project
 - Each skill is a directory with `SKILL.md` (frontmatter required for discovery)
