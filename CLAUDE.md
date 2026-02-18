@@ -65,7 +65,12 @@ create or update it with:
     "code-review@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
     "explanatory-output-style@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true
+    "ralph-loop@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "double-shot-latte@superpowers-marketplace": true
   }
 }
 ```
@@ -78,7 +83,9 @@ Explain what each setting does:
 - **Status line**: Shows git branch, model, context usage, and rate limit info
 - **Plugins**: superpowers (workflow skills), episodic-memory (cross-session memory), elements-of-style (writing
   quality), code-simplifier (code cleanup), code-review (PR reviews), feature-dev (guided feature development),
-  explanatory-output-style (educational insights), ralph-loop (autonomous iteration)
+  explanatory-output-style (educational insights), ralph-loop (autonomous iteration), claude-md-management (CLAUDE.md
+  auditing), skill-creator (skill development toolkit), commit-commands (git workflow automation), security-guidance
+  (pre-commit security checks), double-shot-latte (autonomous continuation without interruptions)
 
 ### 4. Verify setup
 
