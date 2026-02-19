@@ -68,8 +68,7 @@ create or update it with:
     "ralph-loop@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true,
-    "double-shot-latte@superpowers-marketplace": true
+    "commit-commands@claude-plugins-official": true
   }
 }
 ```
@@ -83,8 +82,7 @@ Explain what each setting does:
 - **Plugins**: superpowers (workflow skills), episodic-memory (cross-session memory), elements-of-style (writing
   quality), code-simplifier (code cleanup), code-review (PR reviews), feature-dev (guided feature development),
   explanatory-output-style (educational insights), ralph-loop (autonomous iteration), claude-md-management (CLAUDE.md
-  auditing), skill-creator (skill development toolkit), commit-commands (git workflow automation), double-shot-latte
-  (autonomous continuation without interruptions)
+  auditing), skill-creator (skill development toolkit), commit-commands (git workflow automation)
 
 ### 4. Verify setup
 
