@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ github.token }}
+
+      - name: Trailing whitespace
+        run: |
+          # Fix trailing whitespace in non-markdown files (mdformat handles .md)
+          find . -not -name '*.md' -not -path './.git/*' -type f -exec sed -i 's/[[:space:]]*$//' {} +
+
+      - name: End-of-file fixer
+        run: |
+          # Ensure every text file ends with exactly one newline
+          find . -not -path './.git/*' -type f \( -name '*.md' -o -name '*.yaml' -o -name '*.yml' \
+            -o -name '*.toml' -o -name '*.json' -o -name '*.sh' -o -name '*.txt' \) -print0 | while IFS= read -r -d '' f; do
+            if [ -s "$f" ] && [ "$(tail -c 1 "$f" | xxd -p)" != "0a" ]; then
+              echo "" >> "$f"
+            fi
+          done
+
+      - name: Check YAML
+        run: |
+          find . -not -path './.git/*' -type f \( -name '*.yaml' -o -name '*.yml' \) \
+            -exec python3 -c "
+          import yaml, sys
+          errors = []
+          for f in sys.argv[1:]:
+              try:
+                  with open(f) as fh:
+                      yaml.safe_load(fh)
+              except Exception as e:
+                  errors.append(f'{f}: {e}')
+          if errors:
+              for err in errors:
+                  print(f'FAIL: {err}')
+              sys.exit(1)
+          " {} +
+
+      - name: Check large files
+        run: |
+          max_kb=1000
+          large=$(find . -not -path './.git/*' -type f -size +${max_kb}k)
+          if [ -n "$large" ]; then
+            echo "Files exceeding ${max_kb}KB:"
+            echo "$large"
+            exit 1
+          fi
+
+      - name: Install mdformat
+        run: pip install mdformat mdformat-gfm mdformat-frontmatter mdformat-toc
+
+      - name: Format markdown
+        run: mdformat .
+
+      - name: Auto-commit fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-fix formatting"
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

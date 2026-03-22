@@ -1,0 +1,59 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.eggs/
+*.egg-info/
+*.egg
+dist/
+build/
+.venv/
+venv/
+ENV/
+.env
+
+# Node (for tools that might use it)
+node_modules/
+npm-debug.log*
+
+# Testing & Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets (never commit)
+*.pem
+*.key
+credentials.json
+secrets.json
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Progress tracking (not part of final delivery)
+.progress/
+.playwright-mcp/
