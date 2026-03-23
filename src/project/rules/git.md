@@ -2,9 +2,22 @@
 
 ## Branch Safety
 
-- **Always use feature branches** — never commit directly to main
-- **Never force push** to main/master
-- **No git worktrees** unless explicitly requested
+- **Always use feature branches** — never commit directly to main or dev
+- **Never force push** to main/master or dev
+
+## Branching and Merge Strategy
+
+### With `dev` branch (main + dev model)
+
+- Feature branches (`feat/`, `fix/`, `refactor/`) target `dev`, never `main`
+- Feature → `dev`: **squash merge** (one clean commit per feature)
+- `dev` → `main`: **regular merge commit** (preserves history, marks release boundaries)
+- Only `dev` merges into `main` — no feature branches directly to `main`
+
+### Without `dev` branch
+
+- Feature branches target `main` directly
+- Feature → `main`: **squash merge**
 
 ## Branch Naming
 

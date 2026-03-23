@@ -1,178 +1,88 @@
 # Getting Started
 
-Getting started with the Claude Code Configuration Kit -- a fork-and-own configuration system distributed via git.
+This repo is a rule library for Claude Code. It holds coding standards, plugin recommendations, MCP server configs, and
+skills. You configure each project by pasting a setup prompt into a CC session -- CC reads the library, analyzes the
+project, and writes the right config.
 
-## What is Claude Code?
+## Prerequisites
 
-Claude Code is Anthropic's CLI tool for AI-assisted software development. You run it in your terminal inside any
-project, and it can read your code, write files, run commands, and help you build software. Think of it as an AI pair
-programmer that lives in your terminal.
+- Claude Code installed (`curl -fsSL https://claude.ai/install.sh | bash`)
+- A Claude Pro, Max, Teams, or Enterprise plan
 
-This repo provides **your configuration** -- coding standards, workflow patterns, and learned knowledge -- so every
-Claude Code session follows your conventions automatically.
+## One-Time Setup
 
-## Quick Start
+These steps configure your user-level settings. You only do this once.
 
-### 1. Install Claude Code
-
-```bash
-curl -fsSL https://claude.ai/install.sh | bash
-```
-
-No Node.js required. Auto-updates are included. You need a Claude Pro, Max, Teams, or Enterprise plan.
-
-### 2. Clone and set up
+### 1. Clone this repo
 
 ```bash
 git clone <repo-url>
 cd dotclaude
-claude --dangerously-skip-permissions
 ```
 
-The `--dangerously-skip-permissions` flag lets Claude Code run the setup without prompting for approval on each step.
-This is safe here -- the bootstrap script only creates symlinks and the repo is trusted.
+### 2. Run Claude inside this repo
 
-Claude Code reads this repo's `CLAUDE.md` and walks you through setup: running the bootstrap script, configuring
-`settings.json`, and verifying everything works. Just follow its prompts.
-
-### Manual setup (without Claude Code)
-
-If you prefer to set up manually:
-
-1. Run the bootstrap script:
-
-   ```bash
-   ./src/scripts/bootstrap.sh
-   ```
-
-   This creates symlinks so Claude Code picks up your configuration:
-
-   - `~/.claude/CLAUDE.md` -> `src/user/CLAUDE.md` (user memory)
-   - `~/.claude/rules/` -> `src/rules/` (7 rule files)
-   - `~/.claude/skills/` -> `src/skills/` (skill directories, if any added)
-
-2. Configure `~/.claude/settings.json` (see next section).
-
-## Recommended settings.json
-
-The bootstrap script prints a recommended `settings.json` snippet. Create or update `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "Notification": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "<REPO_DIR>/src/hooks/notify-done/notify-done.sh"
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "<REPO_DIR>/src/scripts/statusline-command.sh"
-  }
-}
+```bash
+claude
 ```
 
-Replace `<REPO_DIR>` with the absolute path to your clone of this repo.
+CC reads `CLAUDE.md` and detects this is the dotclaude repo. It will set up `~/.claude/settings.json` with:
 
-**Notification hook**: Plays a sound and shows a macOS notification when Claude finishes a task, so you can step away
-and come back when it's done.
+- **`DOTCLAUDE_DIR`** env var pointing to this repo (so the setup prompt can find the library from any project)
+- **Notification hook** that plays a sound and shows a macOS notification when CC finishes a task
+- **Status line** that shows git branch, model, context usage, and rate limit info
 
-**Status line**: Shows project name, git branch (with `*` for unstaged and `+` for staged changes), model name, context
-window usage bar, and OAuth usage limits (5-hour and weekly). When usage exceeds 80%, it shows the reset time.
+If you already have a `settings.json`, CC merges these keys into it -- it won't overwrite existing config.
 
-### Recommended plugins
+### 3. Set environment variables for MCP servers
 
-Add these to `~/.claude/settings.json`. The `extraKnownMarketplaces` entry auto-registers the superpowers marketplace
-(no manual `/plugin marketplace add` needed):
+Add API keys to `~/.zshenv` so they're available in all shells:
 
-```json
-{
-  "extraKnownMarketplaces": {
-    "superpowers-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "obra/superpowers-marketplace"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "superpowers@superpowers-marketplace": true,
-    "episodic-memory@superpowers-marketplace": true,
-    "elements-of-style@superpowers-marketplace": true,
-    "code-simplifier@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "explanatory-output-style@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true
-  }
-}
+```bash
+# Context7 — library documentation lookup
+export CONTEXT7_API_KEY="your-key-here"
+
+# Neon — serverless Postgres (only if you use Neon)
+export NEON_API_KEY="your-key-here"
 ```
 
-## Using Claude Code
+Restart your shell or run `source ~/.zshenv` for changes to take effect.
 
-After setup, Claude Code is ready to use in any project:
+You only need keys for the MCP servers you plan to use. The setup prompt will tell you which env vars are required
+based on the servers it enables for a project.
+
+## Configuring a Project
+
+Go to any project and paste the setup prompt:
 
 ```bash
 cd ~/Code/your-project
 claude
 ```
 
-That's it. Your rules and skills are automatically available in every session. You don't need to reference them
-explicitly -- Claude Code loads rules on its own and consults skills when relevant.
+Then paste the contents of `scripts/setup-prompt.md` into the CC session. CC will:
 
-**Things to try in your first session:**
+1. Read all files under `src/project/` (rules, plugins, MCP servers, skills)
+2. Analyze the project (languages, frameworks, existing config)
+3. Propose a setup plan -- which rules, plugins, MCP servers, and skills to enable
+4. Wait for your confirmation
+5. Write the config files (`CLAUDE.md`, `.claude/settings.json`, `.mcp.json`, `.claude/skills/`)
 
-- "What rules do you have?" -- confirms your config is loaded
-- "Help me build a FastAPI endpoint for user registration" -- Claude will follow your conventions automatically
-- Ask about architecture, code review, or debugging -- skills provide context on your patterns
+### What gets written
 
-## Verifying Your Setup
+| File | Content |
+|------|---------|
+| `CLAUDE.md` | Selected rules inlined under a `## Rules` section (merged with existing content) |
+| `.claude/settings.json` | Marketplaces and plugins (merged with existing keys) |
+| `.mcp.json` | MCP server configs with `${ENV_VAR}` syntax for secrets (merged with existing servers) |
+| `.claude/skills/` | Skill directories copied from the library |
 
-After bootstrap, confirm everything is wired up:
+### Re-running the setup
 
-```bash
-# Should list 7 .md files
-ls ~/.claude/rules/
-
-# Should show skill directories (empty in public template)
-ls ~/.claude/skills/
-
-# Quick smoke test -- open CC in any project and ask:
-# "What rules do you have?"
-# It should reference coding-style, git, python, security, typescript, documentation, and learning.
-```
-
-## Updating
-
-```bash
-cd <path-to-dotclaude>
-git pull
-```
-
-Changes to rules and skills are **hot-reloaded** -- no Claude Code restart needed. The symlinks point directly into the
-repo, so a `git pull` is all it takes.
+The setup prompt is idempotent. Run it again to pick up new rules or plugins added to the library. CC merges with
+existing config -- it won't overwrite project-specific sections.
 
 ## Learn More
 
-- **[Context Guide](context-guide.md)** -- How Claude Code's context system works (rules vs skills vs docs)
+- **[Context Guide](context-guide.md)** -- How project-level configuration works
 - **[Design](design.md)** -- Architecture and decision log
-
-## Repo Layout (reference)
-
-```
-dotclaude/
-  src/
-    rules/        # Coding constraints (symlinked to ~/.claude/rules)
-    skills/       # On-demand reference (symlinked to ~/.claude/skills)
-    user/         # User memory (symlinked to ~/.claude/CLAUDE.md)
-    hooks/        # CC hooks (notify-done)
-    scripts/      # bootstrap.sh, statusline-command.sh
-  scripts/        # handoff-instruction.md (Claude.ai project instruction)
-  docs/           # Design docs and guides
-```

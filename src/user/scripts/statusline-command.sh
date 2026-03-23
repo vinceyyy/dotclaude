@@ -6,7 +6,7 @@
 # Configure in ~/.claude/settings.json:
 #   "statusLine": {
 #     "type": "command",
-#     "command": "<REPO_DIR>/src/scripts/statusline-command.sh"
+#     "command": "<REPO_DIR>/src/user/scripts/statusline-command.sh"
 #   }
 
 # Read JSON input

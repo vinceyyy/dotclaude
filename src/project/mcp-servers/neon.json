@@ -1,0 +1,12 @@
+{
+  "name": "Neon",
+  "description": "Neon serverless Postgres — database management, migrations, query tuning",
+  "when": "Project uses Neon for database",
+  "config": {
+    "type": "http",
+    "url": "https://mcp.neon.tech/mcp",
+    "headers": {
+      "Authorization": "Bearer ${NEON_API_KEY}"
+    }
+  }
+}

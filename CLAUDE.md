@@ -1,45 +1,44 @@
-# Claude Code Configuration Kit
+# dotclaude
 
-This repo manages Claude Code configuration (rules, skills, hooks) via symlinks from `~/.claude/` into this repo. Fork
-it, customize it, make it yours.
+Opinionated Claude Code configuration kit. Rules, skills, plugins, and MCP servers — curated once, applied to any
+project via a setup prompt.
 
 ## First-Time Setup
 
-On every conversation start in this repo, check if `~/.claude/rules`, `~/.claude/skills`, and `~/.claude/CLAUDE.md` are
-symlinks pointing into this repo. If not, immediately start the setup process below — don't wait for the user to ask.
+On every conversation start in this repo, check if the user's Claude Code environment is configured. If not, walk them
+through setup.
 
 ### 1. Check if already configured
 
-```bash
-# Check for existing symlinks
-ls -la ~/.claude/rules 2>/dev/null
-ls -la ~/.claude/skills 2>/dev/null
-```
+Read `~/.claude/settings.json` and check for:
+- `env.DOTCLAUDE_DIR` is set
+- `hooks.Notification` exists and points to a `notify-done.sh` inside this repo
+- `statusLine` exists and points to a `statusline-command.sh` inside this repo
 
-If both symlinks exist and point into this repo, skip to "Verify Setup". Otherwise, continue.
+If all three are present and the paths are valid, skip to "Verify Setup". Otherwise, continue.
 
-### 2. Run bootstrap
+### 2. Configure settings.json
 
-```bash
-./src/scripts/bootstrap.sh
-```
+Determine the absolute path to this repo (the current working directory).
 
-This creates symlinks from `~/.claude/` into this repo. It is idempotent (safe to re-run).
+Show the user what will be added to `~/.claude/settings.json` and ask for confirmation. Merge with any existing
+settings — don't overwrite.
 
-### 3. Configure settings.json
-
-Check if `~/.claude/settings.json` exists. If it doesn't, or if it's missing the hooks/statusLine config, help the user
-create or update it with:
+The result should include:
 
 ```json
 {
+  "env": {
+    "DOTCLAUDE_DIR": "<absolute path to this repo>"
+  },
   "hooks": {
     "Notification": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "<REPO_DIR>/src/hooks/notify-done/notify-done.sh"
+            "command": "<absolute path to this repo>/src/user/hooks/notify-done/notify-done.sh",
+            "timeout": 10
           }
         ]
       }
@@ -47,87 +46,54 @@ create or update it with:
   },
   "statusLine": {
     "type": "command",
-    "command": "<REPO_DIR>/src/scripts/statusline-command.sh"
-  },
-  "extraKnownMarketplaces": {
-    "superpowers-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "obra/superpowers-marketplace"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "superpowers@superpowers-marketplace": true,
-    "episodic-memory@superpowers-marketplace": true,
-    "elements-of-style@superpowers-marketplace": true,
-    "code-simplifier@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "explanatory-output-style@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true
+    "command": "<absolute path to this repo>/src/user/scripts/statusline-command.sh"
   }
 }
 ```
 
-Replace `<REPO_DIR>` with the absolute path to this repo. Merge with any existing settings — don't overwrite.
+Replace `<absolute path to this repo>` with the actual path.
 
-Explain what each setting does:
-
-- **Notification hook**: Plays a sound and shows a macOS notification when you finish a task
-- **Status line**: Shows git branch, model, context usage, and rate limit info
-- **Plugins**: superpowers (workflow skills), episodic-memory (cross-session memory), elements-of-style (writing
-  quality), code-simplifier (code cleanup), code-review (PR reviews), feature-dev (guided feature development),
-  explanatory-output-style (educational insights), ralph-loop (autonomous iteration), claude-md-management (CLAUDE.md
-  auditing), skill-creator (skill development toolkit), commit-commands (git workflow automation)
-
-### 4. Verify setup
+### 3. Verify setup
 
 ```bash
-ls -la ~/.claude/CLAUDE.md  # Should be a symlink to src/user/CLAUDE.md
-ls ~/.claude/rules/         # Should list rule .md files
-ls ~/.claude/skills/        # Should list skill directories (if any)
+cat ~/.claude/settings.json | python3 -m json.tool  # valid JSON
+echo $DOTCLAUDE_DIR                                   # should print this repo's path
 ```
 
-Tell the user they're ready. They can now `cd` to any project and run `claude` — the rules and skills will be available
-automatically.
+Tell the user they're ready. To configure any project: open a CC session there and paste the contents of
+`scripts/setup-prompt.md`.
 
-Point them to `docs/context-guide.md` if they want to understand how rules and skills work.
+Point them to `docs/getting-started.md` for details.
 
-## How It Works
-
-- `src/rules/` → symlinked to `~/.claude/rules/` (always loaded, every conversation)
-- `src/skills/` → symlinked to `~/.claude/skills/` (loaded on demand by CC)
-- `src/user/CLAUDE.md` → symlinked to `~/.claude/CLAUDE.md` (always loaded, CC writes to it)
-- `src/hooks/` → referenced from `~/.claude/settings.json`
-- Changes are hot-reloaded — edit a file, CC picks it up immediately
-
-## File Structure
+## Directory Structure
 
 ```
 dotclaude/
 ├── src/
-│   ├── rules/           # Mandatory constraints (always in context)
-│   ├── skills/          # Reference documentation (on demand)
-│   ├── user/            # User memory (learned patterns, symlinked to ~/.claude/CLAUDE.md)
-│   ├── hooks/           # CC lifecycle hooks
-│   │   └── notify-done/ # Desktop notification when CC finishes
-│   └── scripts/         # Bootstrap and status line
+│   ├── project/                    # Copied into projects by the setup prompt
+│   │   ├── rules/                  # Coding standards (.md files)
+│   │   ├── skills/                 # On-demand reference skills
+│   │   ├── mcp-servers/            # MCP configs with ${ENV_VAR} placeholders
+│   │   └── plugins.md              # Plugin catalog
+│   └── user/                       # Installed into ~/.claude/settings.json
+│       ├── hooks/notify-done/      # macOS notification when CC finishes
+│       └── scripts/                # Status line script
 ├── scripts/
-│   └── handoff-instruction.md  # Claude.ai instruction for project handoff
-├── docs/
-│   ├── getting-started.md  # Onboarding guide (human-readable)
-│   ├── context-guide.md    # How CC context management works
-│   └── design.md           # System architecture and decisions
-└── CLAUDE.md              # You are here
+│   └── setup-prompt.md             # The prompt to paste into any project
+├── docs/                           # Human-readable guides
+└── CLAUDE.md                       # You are here
 ```
+
+## Adding to the Library
+
+| What | Where | Format |
+|------|-------|--------|
+| New rule | `src/project/rules/<name>.md` | Markdown, concise constraints |
+| New MCP server | `src/project/mcp-servers/<name>.json` | JSON with `${ENV_VAR}` for secrets |
+| New plugin | `src/project/plugins.md` | Add row to the catalog table |
+| New skill | `src/project/skills/<name>/SKILL.md` | Directory with SKILL.md (YAML frontmatter required) |
 
 ## Working on This Repo
 
-- **Always use PRs** — never commit directly to main (CI only runs on PRs)
 - Use feature branches (`feat/`, `fix/`, `refactor/`)
-- Test changes by verifying CC behavior in another project
-- Each skill is a directory with `SKILL.md` (frontmatter required for discovery)
+- Test changes by pasting `scripts/setup-prompt.md` in another project's CC session

@@ -57,3 +57,6 @@ temp/
 # Progress tracking (not part of final delivery)
 .progress/
 .playwright-mcp/
+
+# Local-only Claude rules
+.claude/rules/local-*.md
